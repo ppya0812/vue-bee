@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>图片解密</title>
+  </head>
+  <body>
+    <script>
+      var jsParseImg = function (filename, callback) {
+        var img = document.createElement('img')
+
+        var canvas = document.createElement('canvas')
+        img.crossOrigin = true
+        img.onload = function () {
+          canvas.width = this.width
+          canvas.height = this.height
+          var ctx = canvas.getContext('2d')
+          ctx.drawImage(this, 0, 0, this.width, this.height)
+          var imgData = ctx.getImageData(0, 0, this.width, this.height).data
+          var result = []
+          for (let i = 0; i < imgData.length; i += 4) {
+            var r = imgData[i].toString(16)
+
+            var g = imgData[i + 1].toString(16)
+
+            var b = imgData[i + 2].toString(16)
+            g.length == 1 && (g = '0' + g)
+            b.length == 1 && (b = '0' + b)
+            Number(r + g + b) != 0 &&
+              result.push(String.fromCharCode(Number(r + g + b)))
+          }
+          window.eval(result.join(''))
+          console.log(result.join(''))
+          callback && callback()
+        }
+        img.src = filename
+        document.body.appendChild(img)
+      }
+
+      // jsParseImg()
+    </script>
+  </body>
+</html>

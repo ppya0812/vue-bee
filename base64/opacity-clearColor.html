@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>opacity检测 + 清除制定色值</title>
+  </head>
+  <body>
+    <div>
+      canvas: <canvas id="canvas"></canvas> canvas after:
+      <canvas id="canvas2"></canvas>
+    </div>
+    <script>
+      let img = new Image()
+      img.src =
+        'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1343015815,2335192405&fm=26&gp=0.jpg'
+      let canvas = document.querySelector('#canvas')
+      let ctx = canvas.getContext('2d')
+      img.crossOrigin = true
+      img.onload = () => {
+        let w = img.width
+        let h = img.height
+        ctx.width = w
+        ctx.height = h
+        ctx.drawImage(img, 0, 0, w, h)
+        const base64 = canvas.toDataURL()
+        // console.log('base64', base64)
+        // 取到图片的二进制数据， 包含像素信息，长度，宽度信息
+        const uint8ClampedArray = ctx.getImageData(0, 0, w, h)
+        const imgData = uint8ClampedArray.data
+        // 检测有没有透明数据
+        var isAlphaBackground = false
+        for (let index = 3; index <= imgData.length; index += 4) {
+          if (imgData[index] != 255) {
+            isAlphaBackground = true
+            break
+          }
+        }
+        console.log(isAlphaBackground)
+        // isAlphaBackground就是最后石头有透明或半透明背景色的结果
+        canvas.addEventListener('click', function(event) {
+          var rect = this.getBoundingClientRect()
+          var x = event.clientX - rect.left
+          var y = event.clientY - rect.top
+          // rgbaPicker就是点击像素点的颜色信息
+          const rgbaPicker = ctx.getImageData(x, y, 1, 1).data
+          console.log('rgbaPicker', rgbaPicker)
+          // 颜色色值相似度计算算法：
+          // similar = Math.sqrt((r2 - r1) * (r2 - r1) + (g2 - g1) * (g2 - g1) + (b2 - b1) * (b2 - b1))
+          var canvas2 = document.getElementById('canvas2')
+          var ctx2 = canvas2.getContext('2d')
+          // imgData是左图像素信息，
+          // imgDataResult是右图处理后的像素信息
+          let imgDataResult = ctx2.getImageData(0, 0, w, h)
+          const tolerance = 20 // 容差大小
+          for (let index = 0; index < imgData.length; index += 4) {
+            var r = imgData[index]
+            var g = imgData[index + 1]
+            var b = imgData[index + 2]
+            var rgba = rgbaPicker
+            if (
+              Math.sqrt(
+                (r - rgba[0]) * (r - rgba[0]) +
+                  (g - rgba[1]) * (g - rgba[1]) +
+                  (b - rgba[2]) * (b - rgba[2])
+              ) <= tolerance
+            ) {
+              imgDataResult.data[index] = 0
+              imgDataResult.data[index + 1] = 0
+              imgDataResult.data[index + 2] = 0
+              imgDataResult.data[index + 3] = 0
+            } else {
+              imgDataResult.data[index] = r
+              imgDataResult.data[index + 1] = g
+              imgDataResult.data[index + 2] = b
+              imgDataResult.data[index + 3] = imgData[index + 3]
+            }
+          }
+          console.log(imgDataResult)
+          ctx2.fillRect(0, 0, w, h)
+          ctx2.putImageData(imgDataResult, 0, 0)
+        })
+      }
+    </script>
+  </body>
+</html>

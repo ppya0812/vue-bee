@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>png-base64</title>
+  </head>
+  <body>
+    <div>
+      canvas: <canvas id="canvas"></canvas> canvas after:
+      <canvas id="canvas2"></canvas>
+    </div>
+    <script>
+      let img = new Image()
+      img.src = ''
+      let canvas = document.querySelector('#canvas')
+      let ctx = canvas.getContext('2d')
+      img.crossOrigin = true
+      img.onload = () => {
+        let w = img.width
+        let h = img.height
+        ctx.width = w
+        ctx.height = h
+        ctx.drawImage(img, 0, 0, w, h)
+        const base64 = canvas.toDataURL()
+        console.log('base64', base64)
+        // 取到图片的二进制数据， 包含像素信息，长度，宽度信息
+        const uint8ClampedArray = ctx.getImageData(0, 0, w, h)
+        console.log('uint8ClampedArray', uint8ClampedArray)
+        const imgData = uint8ClampedArray.data
+        const imgWidth = uint8ClampedArray.width
+        const imgHeight = uint8ClampedArray.height
+        // let result = []
+        let bin = ''
+        for (var i = 0; i < imgData.length; i++) {
+          bin += imgData[i].toString(2)
+        }
+        bin = bin + stringToBin('$$' + imgWidth + ',' + imgHeight + '$$')
+        const result = binToBase64(bin)
+        console.log('bin', bin, result)
+
+        // for (let i = 0; i < imgData.length; i += 4) {
+        // let r = imgData[i].toString(2)
+        // let g = imgData[i + 1].toString(2)
+        // let b = imgData[i + 2].toString(2)
+        // let a = imgData[i + 3].toString(2)
+        // console.log(r, g, b, a)
+        // g.length == 1 && (g = '0' + g)
+        // b.length == 1 && (b = '0' + b)
+        // Number(r + g + b) != 0 &&
+        //   result.push(String.fromCharCode(Number(r + g + b)))
+        // }
+      }
+      const code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'.split(
+        ''
+      ) // 索引表
+      function stringToBin(str) {
+        let result = ''
+        for (let i = 0; i < str.length; i++) {
+          let charCode = str.charCodeAt(i).toString(2)
+          result += new Array(9 - charCode.length).join('0') + charCode
+        }
+        return result
+      }
+      function binToBase64(bitString) {
+        let result = ''
+        let tail = bitString.length % 6
+        let bitStringTemp1 = bitString.substr(0, bitString.length - tail)
+        let bitStringTemp2 = bitString.substr(bitString.length - tail, tail)
+        for (let i = 0; i < bitStringTemp1.length; i += 6) {
+          let index = parseInt(bitStringTemp1.substr(i, 6), 2)
+          result += code[index]
+        }
+        bitStringTemp2 += new Array(7 - tail).join('0')
+        if (tail) {
+          result += code[parseInt(bitStringTemp2, 2)]
+          result += new Array(Math.ceil((6 - tail) / 2) + 1).join('=')
+        }
+        return result
+      }
+    </script>
+  </body>
+</html>
