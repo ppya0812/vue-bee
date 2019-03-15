@@ -1,0 +1,21 @@
+{
+  "name": "bee",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "bee": "bin/bee"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bee": "node bin/bee"
+  },
+  "bugs": {
+    "url": "https://github.com/ppya0812/vue-bee/issues"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "vue": "^2.4.1"
+  }
+}

@@ -1,0 +1,6 @@
+.userinfo {
+  color: red;
+}
+.userinfo-text {
+  font-size: 20px;
+}

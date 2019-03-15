@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+
+const program = require('commander')
+// const map = require('map-stream')
+const init = require('./bee-init')
+const list = require('./bee-list')
+const down = require('./bee-down')
+const generate = require('./bee-generate')
+
+program
+  .version(require('../package.json').version, '-v, --version')
+  .usage('<command> [options]')
+  // .command('down', 'download new templates to local')
+  // .command('init', 'generate a new project from a template')
+  // .command('list', 'list all available templates')
+  // .command('delete', 'delete local templates')
+  .option('-i, --init [name]', 'generate a new project from a template ')
+  .option('-ls, --list', 'list all available templates')
+  .option('-d, --down', 'download new templates to local')
+  .option('-g, --generate', 'generate new templates to local')
+  .option('-r, --remove', 'remove something')
+
+// 必须在.parse()之前，因为node的emit()是即时的
+program.on('--help', function () {
+  console.log('  Examples:')
+  console.log('')
+  console.log('   you can command —— bee list')
+  console.log('')
+})
+
+program.parse(process.argv)
+if (process.argv.length <= 2) {
+  program.help()
+  return
+}
+
+switch (true) {
+  case program.init:
+    init()
+    break;
+  case program.list:
+    list()
+    break;
+  case program.down:
+    down()
+    break;
+  case program.generate:
+    generate()
+    break;
+  default:
+    break;
+}
