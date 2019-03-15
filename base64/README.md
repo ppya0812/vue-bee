@@ -146,9 +146,7 @@ function img2Base64(img) {
     }
     xhr.send()
   }
-  getBase64(
-    'https://fuss10.elemecdn.com/7/b7/3ae0bcb1e68afacbaff7d4b25780bjpeg.jpeg'
-  )
+  getBase64(url)
 ```
 
 ---
